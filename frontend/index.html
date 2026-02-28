@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0,
+               viewport-fit=cover">
+    <title>Plant Bot</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --bg: #f1f8e9;
+            --white: #ffffff;
+            --water: #0288d1;
+            --soil: #795548;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+ /* 🔥 FINAL SYSTEM BAR FIX 🔥 */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.page {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    flex-direction: column;
+}
+
+.page.active {
+    display: flex;
+}
+
+/* Splash screen */
+#page1 {
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+        url("https://gardenandgreenhouse.net/wp-content/uploads/2016/08/Hydroponics-system.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+/* Clean, full-screen background for Page 2 */
+#page2 {
+    inset: 0;
+    height: 100vh;
+    width: 100vw;
+    display: none; /* Controlled by nav() */
+    flex-direction: column;
+    background-color: #f9fbf9; /* A very light, clean grey-green */
+    padding-top: 0;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px 10px 20px; /* Adds space from top and side edges */
+    width: 100%;                  /* Uses the full width of the screen */
+    background: transparent;
+}
+
+/* Specific styling for the settings gear */
+.settings-btn {
+    font-size: 26px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* Specific styling for the My Plants title */
+.header-title {
+    color: var(--primary);
+    font-size: 1.1rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+/* Force the "No plants" content to the dead center */
+#plantGrid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertical center */
+    align-items: center;     /* Horizontal center */
+    padding: 20px;
+}
+/* Large green button matching your photo */
+.btn-add-large {
+    background-color: #2e7d32;
+    color: white;
+    padding: 16px 45px;
+    border-radius: 12px;
+    border: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.2);
+    cursor: pointer;
+    margin-top: 25px;
+}
+        #pageSettings {
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+                        url('https://png.pngtree.com/thumb_back/fh260/background/20251212/pngtree-indoor-hydroponic-farm-with-lush-green-vegetables-and-modern-lighting-image_20809098.webp');
+            background-size: cover; background-position: center;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; max-width: 320px; margin: 0 auto; }
+
+ /* --- PAGE 2 FIXES (MY PLANTS) --- */
+.selection-grid {
+    display: grid !important;
+    /* This ensures boxes have their own space and don't overlap */
+    grid-template-columns: repeat(auto-fit, 130px);
+    gap: 30px;            /* Fixes boxes attached to each other */
+    justify-content: center;
+    padding-top: 100px;    /* Pushes boxes down from heading */
+    max-width: 100%;
+    margin: 0 auto;
+}
+.plant-card {
+    width: 100%;
+    min-height: 150px;        /* NOT height — allows natural sizing */
+    padding: 18px 12px;       /* creates inner space */
+
+    border-radius: 28px;
+    background: linear-gradient(145deg, #ecffec, #c9f3c9);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    box-sizing: border-box;
+}
+.plant-icon { font-size: 70px; line-height: 1; }
+
+.plant-name {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 6px 0 2px;
+}
+
+.plant-status {
+    font-size: 15px;
+}
+.plant-card:hover{
+    transform: translateY(-8px) scale(1.05);
+}
+.plant-card b {
+    font-size: 1rem;      /* Larger text */
+    color: #333;
+    text-transform: uppercase;
+    margin-top: 12px;
+    width: 100%;
+    display: block;       /* Corrects centering of the name */
+}
+
+/* --- PAGE 3 FIXES (DASHBOARD) --- */
+.stats-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 110px;    /* Pushes boxes down away from dashboard title */
+    max-width: 100%;
+    padding: 0 15px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    border-radius: 28px;
+    width: 125px;          /* Bigger boxes */
+    height: 125px;         /* Bigger boxes */
+    box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+/* Reduced size for the Suggestion/Alert Box at the bottom */
+#page3 .glass-card {
+    margin: 60px auto 0;  /* Centers and pushes it down */
+    width: 80%;           /* Narrower box */
+    padding: 10px 15px;   /* Smaller internal height */
+    min-height: auto;
+    border-radius: 18px;
+    text-align: center;
+}
+        .card b { font-size: 1.1rem; }
+        .card span { font-size: 0.7rem; color: #666; }
+
+    .glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(8px);
+    padding: 16px;
+    border-radius: 22px;
+    margin-bottom: 16px;
+    width: 100%;              /* ✅ FULL WIDTH */
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+        input { width: 100%; padding: 10px; margin: 6px 0; border-radius: 8px; border: 1px solid #ddd; outline: none; font-size: 0.9rem; }
+        .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 0.9rem; }
+        .btn-green { background: var(--primary); color: white; }
+        .btn-gray { background: #e0e0e0; color: #333; max-width: 320px; margin: 10px auto; display: block; }
+
+        .row { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; font-size: 0.9rem; }
+        .switch { position: relative; width: 44px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 34px; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .4s; }
+        input:checked + .slider { background: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .meter-container {
+            width: 80px; height: 80px; border-radius: 50%; border: 5px solid var(--primary);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 4px auto; background: white;
+        }
+        .hidden { display: none; }
+        .empty-state { text-align: center; margin-top: 80px; color: #555; }
+
+        h3 { font-size: 1rem; margin-top: 0; margin-bottom: 10px; color: var(--primary); }
+
+        /* Cleaned list for settings */
+        #settingsList {
+            margin: 10px 0 0 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        #settingsList li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        #settingsList li:last-child { border: none; }
+        /* ✅ Android WebView safe-area fix */
+#page2,
+#page3,
+#pageSettings,
+
+
+
+/* Splash page should be full screen */
+#page1 {
+    padding-top: 0;
+    min-height: 100vh;
+}
+        .auto-item {
+    margin-bottom: 16px;
+}
+
+.auto-item:last-child {
+    margin-bottom: 0;
+}
+
+.auto-item small {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+/* ===== SETTINGS PAGE FULL WIDTH FIX ===== */
+#pageSettings {
+    padding-left: 14px;
+    padding-right: 14px;
+}
+#pageSettings .glass-card {
+    width: 100%;
+    max-width: none;     /* 🔥 THIS IS THE KEY */
+}
+/* Reduces the size of the status box on Page 3 */
+#page3 .glass-card {
+    margin: 50px auto 0; /* Keeps it lowered but centers it */
+    width: 85%;          /* Makes the box narrower than full-screen */
+    padding: 12px;       /* Reduces the height by having less internal space */
+    min-height: auto;    /* Ensures it doesn't stay unnecessarily tall */
+}
+.detail-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 12px 12px;   /* ❌ removed top padding */
+    gap: 10px;
+}
+
+.detail-top {
+    text-align: center;
+    padding: 18px;
+}
+
+.detail-middle {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;   /* ❌ remove push-down padding */
+}
+
+.detail-middle canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.detail-bottom {
+    font-size: 0.8rem;
+    padding: 12px;
+}
+
+.back-btn {
+    margin-top: auto;
+}
+
+/* 👤 USER PROFILE STYLES — MATCH APP THEME */
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;              /* same as other box titles */
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--primary);       /* green like Add Plant / Automation */
+}
+
+.profile-row {
+    font-size: 0.9rem;           /* slightly smaller than before */
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #444;                /* soft dark like other text */
+    letter-spacing: 0.2px;
+}
+
+.edit-icon {
+    cursor: pointer;
+    font-size: 18px;
+    color: #666;                /* subtle professional look */
+}
+#page2 {
+    background: linear-gradient(
+        rgba(255,255,255,0.6),
+        rgba(255,255,255,0.6)
+    ),
+    url('https://as2.ftcdn.net/jpg/04/18/67/25/1000_F_418672581_tTPPp6mUOMA2Ui0zrJTSEIvaOeGjKVK4.jpg');
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+#pageDetail {
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+
+    background: linear-gradient(
+        rgba(255,255,255,0.78),
+        rgba(255,255,255,0.78)
+    ),
+    url('https://i.ytimg.com/vi/tyeDfOM4B8k/maxresdefault.jpg');
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+        #page3 {
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+
+    background: linear-gradient(
+        rgba(255,255,255,0.6),
+        rgba(255,255,255,0.6)
+    ),
+    url('https://img.freepik.com/premium-photo/hydroponic-greenhouse-filled-rows-wallpaper_987764-47389.jpg');
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.plant-card{
+    position: relative;   /* allows corner positioning */
+}
+
+.delete-icon{
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 34px;                 /* controls ALL spacing */
+    padding: 30px;
+    place-items: center;      /* centers cards perfectly */
+}
+.climate-box {
+    width: 92%;
+    max-width: 500px;      /* smaller than before */
+    margin: 12px auto;     /* less spacing */
+    padding: 10px 14px;    /* reduced padding */
+    border-radius: 25px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.climate-item {
+    flex: 1;
+    text-align: center;
+    font-size: 14px;       /* smaller text */
+    font-weight: 600;
+}
+
+.climate-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(255,255,255,0.3);
+}
+
+
+.climate-item span {
+    font-size: 18px;      /* 🔽 compact number */
+    font-weight: 800;
+    color: #2e7d32;
+}
+
+.climate-item p {
+    margin: 2px 0 0;
+    font-size: 10px;      /* 🔽 tiny label */
+}
+.nutrient-circle-container{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:36px;
+    justify-items:center;
+    margin-top:110px;
+    padding:0 30px;
+}
+
+.nutrient-circle{
+    width:130px;      /* 🔽 smaller & neat */
+    height:130px;
+    border-radius:50%;
+    background:linear-gradient(145deg,#ecffec,#c9f3c9);
+    box-shadow:0 10px 22px rgba(0,0,0,.15);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-size:34px;
+    font-weight:800;
+    color:#2e7d32;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.nutrient-circle span{
+    font-size:13px;
+    margin-top:4px;
+    color:#555;
+}
+
+/* center bottom circle */
+.nutrient-circle:nth-child(3){
+    grid-column:1 / span 2;
+}
+.header{
+    padding-top: env(safe-area-inset-top, 5px);
+    padding-left:18px;
+    padding-right:18px;
+    padding-bottom:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+#pageDetail {
+    overflow: hidden;
+}
+        #pageSettings {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+}
+#page1 h1 {
+    font-family: 'Pacifico', cursive;  /* Pacifico font */
+    font-size: 3rem;                   /* slightly smaller */
+    color: #ffffff;                    /* white text */
+    text-transform: uppercase;         /* BLOCK letters */
+    text-align: center;
+    margin: 0;
+    letter-spacing: 2px;               /* slightly tighter spacing */
+    font-weight: 400;
+    text-shadow:
+        2px 2px 8px rgba(0,0,0,0.6),  /* subtle shadow for depth */
+        0 0 15px rgba(255,255,255,0.25); /* soft glow */
+}
+.climate-item {
+    flex: 1;
+    text-align: center;
+}
+
+.climate-item span {
+    font-size: 22px;
+    font-weight: 800;
+    color: #2e7d32;
+}
+
+.climate-item p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    color: #555;
+}
+#mainClimateBox {
+    background: #2e7d32 !important; /* Solid Medium Green */
+
+    /* SIZE CONTROLS */
+    width: 80% !important;        /* Reduced width from 92% */
+    max-width: 300px !important;  /* Prevents it from getting too wide */
+    padding: 8px 12px !important; /* Reduced internal space */
+    margin: 10px auto !important; /* Less space above/below */
+
+    /* CLEANUP */
+    backdrop-filter: none !important;
+    border-radius: 15px !important; /* Slightly sharper corners for a smaller box */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    opacity: 1 !important;
+}
+
+/* Adjusting internal text size to fit the smaller box */
+#mainClimateBox .climate-item {
+    font-size: 12px !important;
+    color: white !important;
+}
+
+#mainClimateBox .climate-item span {
+    font-size: 16px !important; /* Slightly smaller numbers */
+    color: white !important;
+}
+
+#mainClimateBox .climate-divider {
+    height: 20px !important; /* Shorter divider */
+    background: rgba(255,255,255,0.3) !important;
+}
+        /* Specifically targets the Climate Box on the Dashboard (Page 3) */
+#page3 .climate-box {
+    width: 75% !important;         /* Makes it narrower */
+    max-width: 280px !important;   /* Limits maximum width */
+    padding: 6px 10px !important;  /* Shrinks internal height */
+    margin: 10px auto !important;  /* Reduces space around the box */
+    border-radius: 15px !important; /* Matches the compact look */
+}
+
+/* Adjusting the text and icon sizes inside the Page 3 box */
+#page3 .climate-item {
+    font-size: 11px !important;    /* Smaller labels */
+}
+
+#page3 .climate-item span {
+    font-size: 15px !important;    /* Smaller numbers */
+}
+
+#page3 .climate-divider {
+    height: 18px !important;       /* Shorter vertical line */
+}
+        .detail-middle {
+    height: 260px;
+}
+
+    </style>
+</head>
+<body>
+
+<div id="page1" class="page active" onclick="nav('page2')">
+    <h1>PLANT BOT</h1>
+</div>
+
+<div id="page2" class="page">
+    <div class="header">
+        <div class="settings-btn" onclick="nav('pageSettings')">⚙️</div>
+
+        <b class="header-title">MY PLANTS</b>
+        <div style="width:32px;"></div>
+    </div>
+    <div class="climate-box" id="mainClimateBox">
+        <div class="climate-item">
+            🌡 Temp: <span id="mainTempValue">--</span>°C
+        </div>
+        <div class="climate-divider"></div>
+        <div class="climate-item">
+            💧 Humidity: <span id="mainHumValue">--</span>%
+        </div>
+    </div>
+    <div id="plantGrid" class="selection-grid"></div>
+</div>
+<div id="page3" class="page">
+    <div class="header">
+        <div onclick="nav('page2')" style="font-size:22px; cursor:pointer;">⬅️</div>
+        <div style="text-align:center;">
+            <b id="activePlantName"
+               style="color:var(--primary); text-transform: uppercase; font-size: 0.9rem;">
+                DASHBOARD
+            </b>
+            <div id="sensorStatusText"
+                 style="font-size:10px; margin-top:4px; color:red;">
+                SENSOR OFFLINE
+            </div>
+        </div>
+
+        <div onclick="nav('pageSettings')" style="font-size:22px; cursor:pointer;">⚙️</div>
+    </div>
+    <!-- 🌡️ Climate Box (Temperature & Humidity) -->
+    <div class="climate-box">
+        <div class="climate-item">
+            <span id="tempVal">--°C</span>
+            <p>Temperature</p>
+        </div>
+
+        <div class="climate-divider"></div>
+
+        <div class="climate-item">
+            <span id="humVal">--%</span>
+            <p>Humidity</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="card" onclick="openDetail('pH Level','ph')">
+            <span style="font-size:20px;">🧪</span>
+            <b id="phVal">--</b>
+            <span>pH Level</span>
+        </div>
+
+        <div class="card" onclick="openDetail('Water Moisture','water')">
+            <span style="font-size:20px;">💧</span>
+            <b id="waterVal">--%</b>
+            <span>Water</span>
+        </div>
+
+        <div class="card" onclick="nav('pageNutrients')">
+            <span style="font-size:20px;">🪴</span>
+            <b id="soilVal">--%</b>
+            <span>Nutrients</span>
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 25px; text-align: center;">
+        <p id="alertBox" style="margin:0; font-size: 0.85rem; font-weight:bold;"></p>
+    </div>
+</div> <!-- ✅ CLOSE page3 -->
+<!-- ===== SOIL NUTRIENTS PAGE ===== -->
+
+<div id="pageNutrients" class="page">
+
+    <div class="header">
+        <div onclick="nav('page3')">⬅️</div>
+        <b id="nutrientTitle">Soil Nutrients</b>
+        <div style="width:22px;"></div>
+    </div>
+
+    <div class="nutrient-circle-container">
+
+        <div class="nutrient-circle" onclick="openNutrientDetail('Nitrogen','n')">
+            N <span>Nitrogen</span>
+        </div>
+
+        <div class="nutrient-circle" onclick="openNutrientDetail('Phosphorus','p')">
+            P <span>Phosphorus</span>
+        </div>
+        <div class="nutrient-circle" onclick="openNutrientDetail('Potassium','k')">
+            K <span>Potassium</span>
+        </div>
+
+    </div>
+</div>
+
+<div id="pageSettings" class="page">
+    <div class="glass-card">
+        <div class="profile-header">
+            <span>User Profile</span>
+            <span class="edit-icon" onclick="editUser()">✏️</span>
+        </div>
+        <div id="signupForm">
+            <input type="text" id="regName" placeholder="Full Name">
+            <input type="email" id="regEmail" placeholder="Email Address">
+            <input type="tel" id="regPhone" placeholder="Phone Number">
+            <button class="btn btn-green" onclick="saveUser()">SAVE USER</button>
+        </div>
+        <div id="userInfoDisplay" class="hidden">
+            <div class="profile-row">Name: <span id="dispName"></span></div>
+            <div class="profile-row">Email: <span id="dispEmail"></span></div>
+            <div class="profile-row">Phone: <span id="dispPhone"></span></div>
+        </div>
+
+    </div>
+
+    <div class="glass-card">
+        <h3>Add Plant</h3>
+        <input type="text" id="plantInput" placeholder="Enter plant name...">
+        <button class="btn btn-green" onclick="addNewPlant()">ADD TO GARDEN</button>
+        <ul id="settingsList"></ul>
+    </div>
+
+    <div class="glass-card">
+        <h3>Automation</h3>
+
+        <div class="auto-item">
+            <div class="row">
+                <span>Auto-Care Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="masterAuto" onchange="toggleAutomation()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <small id="autoStatus">🔴 Automation Disabled</small>
+        </div>
+
+        <div class="auto-item">
+            <div class="row">
+                <span>Water Pump</span>
+                <label class="switch">
+                    <input type="checkbox" id="pumpSwitch">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <small id="pumpStatus">🔴 Pump Stopped</small>
+        </div>
+    </div>
+
+    <!-- 🔥 SEPARATE CONTROL CARD -->
+    <div class="glass-card">
+        <button class="btn btn-gray" onclick="nav('page2')">BACK TO GARDEN</button>
+        <button class="btn" style="color:red; background:white; max-width: 320px; margin: 12px auto 0; display: block;" onclick="logout()">LOG OUT</button>
+    </div>
+</div> <!-- END pageSettings -->
+
+<div id="pageDetail" class="page">
+
+    <div class="detail-wrapper">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div onclick="goBackFromDetail()" style="font-size:22px;cursor:pointer;">⬅️</div>
+            <b id="detTitle">Title</b>
+            <div style="width:22px;"></div>
+        </div>
+
+        <!-- TOP VALUE -->
+        <div class="meter-container" id="meterBorder">
+            <span id="detVal">--</span>
+            <span id="detUnit">UNIT</span>
+        </div>
+
+        <!-- GRAPH -->
+        <div class="detail-middle glass-card">
+            <canvas id="myChart"></canvas>
+        </div>
+
+        <!-- SUGGESTION -->
+        <div class="detail-bottom glass-card">
+            <b>SUGGESTIONS</b>
+            <p id="suggestionBox"></p>
+        </div>
+
+    </div>
+</div>
+<script>
+    /* ------------------ GLOBAL STATE ------------------ */
+    const API_URL = "/api";
+    let liveSensorData = {
+    ph:"--", water:"--", soil:"--",
+    n:"--", p:"--", k:"--",
+    temp:"--", hum:"--"
+     };
+    let lastSensorUpdateTime = 0;
+    let sensorStatus = "offline"; // online | offline
+    let plants = JSON.parse(localStorage.getItem("plantbot_plants")) || [];
+    let currentSelectedPlant = "";
+    let currentDetailType = null; // ph | water | soil
+    let detailFrom = null; // "dashboard" or "nutrients"
+    let currentUser = null; // stores user info until logout
+    let backendConnected = false;
+    let chart = null;
+    let phHistory = [];
+    let waterHistory = [];
+    let soilHistory = [];
+    let nHistory = [];
+    let pHistory = [];
+    let kHistory = [];
+
+
+
+    const savedUser = localStorage.getItem("plantbot_user");
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showUserInfo(); // ✅ THIS WAS MISSING
+    }
+    function sendNotification(title, message) {
+        if (window.AndroidBridge && AndroidBridge.notify) {
+            AndroidBridge.notify(title, message);
+        }
+    }
+    /* ------------------ NAVIGATION ------------------ */
+    function nav(id) {
+        document.querySelectorAll('.page').forEach(p => {
+            p.classList.remove('active');
+            p.style.display = "none";
+        });
+        const activePage = document.getElementById(id);
+        if(activePage) {
+            activePage.classList.add('active');
+            activePage.style.display = "flex";
+        }
+        window.scrollTo(0, 0);
+        if (id === 'page2') renderPlantSelection();
+        if (id === 'pageSettings') renderSettingsList();
+    }
+
+    /* ------------------ USER ------------------ */
+    function saveUser() {
+        const name = regName.value.trim();
+        const email = regEmail.value.trim();
+        const phone = regPhone.value.trim();
+
+        if (!name || !email || !phone) {
+            alert("Please fill all details");
+            return;
+        }
+
+        currentUser = { name, email, phone };
+
+        // ✅ Save permanently
+        localStorage.setItem("plantbot_user", JSON.stringify(currentUser));
+
+        showUserInfo();
+    }
+    function showUserInfo() {
+        if (!currentUser) return;
+
+        dispName.innerText = currentUser.name;
+        dispEmail.innerText = currentUser.email;
+        dispPhone.innerText = currentUser.phone;
+
+        signupForm.classList.add("hidden");
+        userInfoDisplay.classList.remove("hidden");
+    }
+
+    function requireSignup() {
+        if (!currentUser) {
+            alert("⚠️ Please sign up first to use this feature.");
+            nav('pageSettings');
+            return false;
+        }
+        return true;
+    }
+
+    /* ------------------ PLANTS ------------------ */
+    function addNewPlant() {
+        if (!requireSignup()) return;
+
+        const name = plantInput.value.trim();
+        if (!name) return;
+
+        if (plants.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+            alert("This plant already exists 🌱");
+            return;
+        }
+
+        plants.push({
+            name: name,
+            sensorStatus: sensorStatus
+        });
+
+        localStorage.setItem("plantbot_plants", JSON.stringify(plants));
+
+        plantInput.value = "";
+        renderSettingsList();
+        renderPlantSelection();
+    }
+function renderSettingsList() {
+    const list = document.getElementById("settingsList");
+
+    if (plants.length === 0) {
+        list.innerHTML = "<li>No plants added</li>";
+        return;
+    }
+
+  list.innerHTML = plants.map((p, index) => `
+    <li style="
+        position:relative;
+        padding:14px;
+        border-radius:14px;
+        background: rgba(255,255,255,0.85);
+        margin-bottom:10px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        font-weight:500;">
+        🌿 ${p.name}
+
+       <button class="delete-icon" onclick="deletePlant(${index})">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="red" xmlns="http://www.w3.org/2000/svg">
+  <path d="M3 6h18v2H3V6zm2 3h14l-1 12H6L5 9zm4-5h6l1 2H8l1-2z"/>
+</svg>
+</button>
+    </li>
+`).join("");
+}
+
+function renderChart(type) {
+    const canvas = document.getElementById("myChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    if (chart) { chart.destroy(); }
+
+    // Create a Professional Gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(46, 125, 50, 0.4)'); // Primary Green
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');  // Transparent
+
+    let dataArray = getHistoryArray(type); // Ensure this pulls your history
+
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dataArray.map((_, i) => i + 1),
+            datasets: [{
+                data: dataArray,
+                borderColor: '#2e7d32',
+                borderWidth: 3,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#2e7d32',
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                backgroundColor: gradient,
+                tension: 0.4 // Makes the line smooth/curvy
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }, // Hide messy legend
+            scales: {
+                x: { display: false }, // Hide X axis for clean look
+                y: {
+                    grid: { display: false }, // Remove background lines
+                    ticks: { color: '#2e7d32', font: { weight: 'bold' } }
+                }
+            }
+        }
+    });
+}
+function renderPlantSelection() {
+    const grid = document.getElementById("plantGrid");
+
+    if (plants.length === 0) {
+        grid.style.display = "grid";
+        grid.innerHTML = `
+            <div style="text-align: center;">
+                <img src="https://cdn-icons-png.flaticon.com/512/628/628283.png"
+                     style="width: 150px; margin-bottom: 25px;">
+                <p style="font-size: 1.4rem; color: #444; font-weight: 500; margin: 0;">No plants yet.</p>
+                <button class="btn-add-large" onclick="nav('pageSettings')">
+                    + Add Plant
+                </button>
+            </div>`;
+    }
+    else {
+        grid.style.alignContent = "start";
+
+        grid.innerHTML = plants.map((p, index) => `
+    <div class="plant-card">
+        <div onclick="goToDashboard('${p.name}')" style="cursor:pointer;">
+            <div class="icon">🌿</div>
+            <b>${p.name}</b>
+            <small style="font-size:9px; color:${p.sensorStatus === 'online' ? '#2e7d32' : 'red'};">
+                ${p.sensorStatus === 'online' ? 'Online' : 'Offline'}
+            </small>
+        </div>
+        <button class="delete-icon" onclick="deletePlant(${index})">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="red" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6h18v2H3V6zm2 3h14l-1 12H6L5 9zm4-5h6l1 2H8l1-2z"/>
+            </svg>
+        </button>
+    </div>
+`).join('');
+    }
+}
+function goToDashboard(name) {
+    currentSelectedPlant = name;
+    document.getElementById("activePlantName").innerText = name.toUpperCase();
+    nav('page3');
+}
+
+    function logout() {
+        localStorage.removeItem("plantbot_user");
+        currentUser = null;
+        location.reload();
+    }
+function openNutrientDetail(title, type) {
+    currentDetailType = type;
+    detailFrom = "nutrients";
+
+    detTitle.innerText = title + " Level";
+    detUnit.innerText = "%";
+
+    nav('pageDetail');
+
+    setTimeout(() => {
+        detVal.innerText =
+            liveSensorData[type] !== "--" ? liveSensorData[type] : "--";
+
+        setTimeout(() => {
+            renderChart(type);
+            if (chart) chart.resize();
+            updateParameterSuggestion(type);
+        }, 300);
+
+    }, 100);
+}
+function updateParameterSuggestion(parameter) {
+
+    if (!backendConnected || sensorStatus === "offline" || liveSensorData[parameter] === "--") {
+        suggestionBox.innerText = "";
+        return;
+    }
+
+    const val = Number(liveSensorData[parameter]);
+    let msg = "";
+
+    // Individual suggestions based on parameter
+    switch(parameter) {
+        case "ph":
+            if (val < 5.5) msg = "Soil is acidic — Add lime to balance pH.";
+            else if (val > 7.5) msg = "Soil is alkaline — Use sulfur or organic matter.";
+            else msg = "✅ pH level is optimal.";
+            break;
+
+        case "water":
+            if (val < 30) msg = "Soil is too dry — Water the plant.";
+            else if (val > 85) msg = "Soil is waterlogged — Improve drainage.";
+            else msg = "✅ Water level is optimal.";
+            break;
+
+        case "soil":
+            if (val < 40) msg = "Soil fertility is low — Add organic compost.";
+            else msg = "✅ Soil nutrients are optimal.";
+            break;
+
+        case "n":
+            if (val < 20) msg = "Nitrogen is low — Add nitrogen-rich fertilizer.";
+            else msg = "✅ Nitrogen level is optimal.";
+            break;
+
+        case "p":
+            if (val < 20) msg = "Phosphorus is low — phosphate fertilizer.";
+            else msg = "✅ Phosphorus level is optimal.";
+            break;
+
+        case "k":
+            if (val < 20) msg = "Potassium is low — Add potash fertilizer.";
+            else msg = "✅ Potassium level is optimal.";
+            break;
+
+        default:
+            msg = "";
+    }
+
+    suggestionBox.innerText = msg;
+}
+function getHistoryArray(type) {
+    switch(type) {
+        case "ph": return phHistory;
+        case "water": return waterHistory;
+        case "soil": return soilHistory;
+        case "n": return nHistory;
+        case "p": return pHistory;
+        case "k": return kHistory;
+        default: return [];
+    }
+}
+
+function deletePlant(index) {
+    if (!confirm("Delete this plant? 🌱")) return;
+    plants.splice(index, 1);
+    localStorage.setItem("plantbot_plants", JSON.stringify(plants));
+
+    renderPlantSelection();
+    renderSettingsList();
+
+    // If user deleted currently open plant
+    if (currentSelectedPlant && !plants.find(p => p.name === currentSelectedPlant)) {
+        nav('page2');
+    }
+}
+async function fetchSensorData() {
+    try {
+        const res = await fetch(`${API_URL}/api/sensors`);
+        const data = await res.json();
+
+        // 1. Mark system as online
+        backendConnected = true;
+        lastSensorUpdateTime = Date.now();
+        sensorStatus = "online";
+
+        // 2. Map Python API keys to JavaScript object
+        liveSensorData = {
+            ph: data.phValue,
+            water: data.waterPercent,
+            soil: data.soilPercent,
+            n: data.nitrogen,
+            p: data.phosphorus,
+            k: data.potassium,
+            temp: data.temperature,
+            hum: data.humidity
+        };
+
+        // 3. PUSH DATA TO HISTORY ARRAYS (For the Graphs)
+        phHistory.push(liveSensorData.ph);
+        waterHistory.push(liveSensorData.water);
+        soilHistory.push(liveSensorData.soil);
+        nHistory.push(liveSensorData.n);
+        pHistory.push(liveSensorData.p);
+        kHistory.push(liveSensorData.k);
+
+        // 4. LIMIT HISTORY (Keep last 20 points only)
+        const maxHistory = 20;
+        if (phHistory.length > maxHistory) phHistory.shift();
+        if (waterHistory.length > maxHistory) waterHistory.shift();
+        if (soilHistory.length > maxHistory) soilHistory.shift();
+        if (nHistory.length > maxHistory) nHistory.shift();
+        if (pHistory.length > maxHistory) pHistory.shift();
+        if (kHistory.length > maxHistory) kHistory.shift();
+
+        // 5. UPDATE UI
+        updateSensorStatusUI();
+        updateDashboardValues();
+        checkAlerts();
+
+        // 6. REFRESH GRAPH (Only if the detail page is currently open)
+        const detailPage = document.getElementById("pageDetail");
+        if (detailPage && detailPage.classList.contains("active") && currentDetailType) {
+            renderChart(currentDetailType);
+            updateDetailView();
+        }
+
+    } catch (err) {
+        console.error("Fetch error:", err);
+        backendConnected = false;
+        sensorStatus = "offline";
+        updateSensorStatusUI();
+    }
+}
+async function sendControlUpdate(update) {
+    try {
+        if (update.hasOwnProperty('pump')) {
+            const action = update.pump ? 'on' : 'off';
+            await fetch(`${API_URL}/api/pump/${action}`, { method: "POST" });
+        }
+    } catch (err) {
+        console.error("Control update failed", err);
+    }
+}
+
+async function fetchActuatorState() {
+    try {
+        const res = await fetch(`${API_URL}/api/control`);
+        const data = await res.json();
+        masterAuto.checked = data.automation;
+        pumpSwitch.checked = data.pump;
+        updateActuatorStatusUI(data);
+    } catch(err) {
+        console.error("Failed to fetch actuator state", err);
+    }
+}
+
+function goBackFromDetail(){
+    if(detailFrom === "dashboard"){
+        nav('page3');
+    } else {
+        nav('pageNutrients');
+    }
+}
+
+function updateActuatorStatusUI(state) {
+    autoStatus.innerText = state.automation ? "🟢 Automation Enabled" : "🔴 Automation Disabled";
+    autoStatus.style.color = state.automation ? "#2e7d32" : "red";
+    pumpStatus.innerText = state.pump ? "🟢 Pump Running" : "🔴 Pump Stopped";
+    pumpStatus.style.color = state.pump ? "#2e7d32" : "red";
+}
+
+async function toggleAutomation() {
+    const on = document.getElementById("masterAuto").checked;
+    const res = await fetch(`${API_URL}/api/control`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ automation: on })
+    });
+    const serverState = await res.json();
+    masterAuto.checked = serverState.automation;
+    pumpSwitch.checked = serverState.pump;
+    updateActuatorStatusUI(serverState);
+}
+
+function openDetail(title, type) {
+    currentDetailType = type;
+    detailFrom = "dashboard";
+    detTitle.innerText = title;
+    detUnit.innerText = (type === "ph") ? "pH" : "%";
+
+    nav('pageDetail');
+
+    setTimeout(() => {
+        detVal.innerText =
+            liveSensorData[type] !== "--" ? liveSensorData[type] : "--";
+
+        setTimeout(() => {
+            renderChart(type);
+            if (chart) chart.resize();
+            updateParameterSuggestion(type);
+        }, 300);
+
+    }, 100);
+}
+
+function updateSensorStatusUI() {
+    const el = document.getElementById("sensorStatusText");
+    const mainClimate = document.getElementById("mainClimateBox");
+    if (sensorStatus === "online") {
+        el.innerText = "SENSOR ONLINE";
+        el.style.color = "#2e7d32";
+        if (mainClimate) mainClimate.style.opacity = "1";
+    } else {
+        el.innerText = "SENSOR OFFLINE";
+        el.style.color = "red";
+        if (mainClimate) mainClimate.style.opacity = "0.4";
+    }
+}
+
+function isLiveDataValid(d) {
+    if (!d) return false;
+    return d.ph !== "--" && d.temp !== "--";
+}
+
+function monitorSensorHealth() {
+    const now = Date.now();
+    if (!backendConnected || !isLiveDataValid(liveSensorData)) {
+        sensorStatus = "offline";
+    } else if (now - lastSensorUpdateTime > 30000) {
+        sensorStatus = "offline";
+        clearLiveCards();
+    } else {
+        sensorStatus = "online";
+    }
+    updateSensorStatusUI();
+    plants.forEach(p => p.sensorStatus = sensorStatus);
+    localStorage.setItem("plantbot_plants", JSON.stringify(plants));
+    if (document.getElementById("page2").classList.contains("active")) {
+        renderPlantSelection();
+    }
+}
+
+function updateDetailView() {
+    if (!currentDetailType) return;
+    const value = liveSensorData[currentDetailType];
+    detVal.innerText = (value !== "--") ? value : "--";
+}
+
+function updateDashboardValues() {
+    if (document.getElementById("phVal")) phVal.innerText = liveSensorData.ph;
+    if (document.getElementById("waterVal")) waterVal.innerText = liveSensorData.water + "%";
+    if (document.getElementById("soilVal")) soilVal.innerText = liveSensorData.soil + "%";
+    if (document.getElementById("tempVal")) tempVal.innerText = liveSensorData.temp + "°C";
+    if (document.getElementById("humVal")) humVal.innerText = liveSensorData.hum + "%";
+    if (document.getElementById("mainTempValue")) mainTempValue.innerText = liveSensorData.temp;
+    if (document.getElementById("mainHumValue")) mainHumValue.innerText = liveSensorData.hum;
+}
+
+function editUser() {
+    signupForm.classList.remove("hidden");
+    userInfoDisplay.classList.add("hidden");
+    regName.value = currentUser.name;
+    regEmail.value = currentUser.email;
+    regPhone.value = currentUser.phone;
+}
+
+function clearLiveCards() {
+    liveSensorData = { ph:"--", water:"--", soil:"--", n:"--", p:"--", k:"--", temp:"--", hum:"--" };
+    updateDashboardValues();
+}
+
+function checkAlerts() {
+    if (!backendConnected || sensorStatus === "offline" || liveSensorData.ph === "--") {
+        alertBox.innerText = "⚠️ DATA UNAVAILABLE";
+        alertBox.style.color = "orange";
+        return;
+    }
+    let alertMsg = "✅ All conditions are healthy";
+    let alertColor = "#2e7d32";
+    if (liveSensorData.ph < 5.5 || liveSensorData.ph > 7.5) { alertMsg = "⚠️ pH level out of range!"; alertColor = "red"; }
+    else if (liveSensorData.water < 30) { alertMsg = "⚠️ Soil is too dry!"; alertColor = "orange"; }
+    alertBox.innerText = alertMsg;
+    alertBox.style.color = alertColor;
+}
+
+setTimeout(() => {
+    if (document.getElementById("page1").classList.contains("active")) {
+        nav('page2');
+    }
+}, 2000);
+
+async function checkBackend() {
+    try {
+        await fetch(`${API_URL}/health`);
+        backendConnected = true;
+    } catch {
+        backendConnected = false;
+        sensorStatus = "offline";
+        updateSensorStatusUI();
+    }
+}
+
+renderSettingsList();
+renderPlantSelection();
+setInterval(fetchSensorData, 3000);
+setInterval(monitorSensorHealth, 5000);
+setInterval(checkBackend, 5000);
+
+</script>
+</body>
+</html>
