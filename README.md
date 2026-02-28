@@ -1,6 +1,6 @@
 #PlantBot
 
-A plant disease detectiom web app deployed on AWS EC2 using Nginx and FastAPI
+A plant health monitoring web app deployed on AWS EC2 using Nginx and FastAPI
 
 
 ##Tech Stack 
